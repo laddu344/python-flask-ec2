@@ -1,0 +1,39 @@
+version: 0.2
+
+env:
+  parameter-store:
+    DOCKER_REGISTRY_USERNAME: /myapp/docker-credentials/username
+    DOCKER_REGISTRY_PASSWORD: /myapp/docker-credentials/password
+    DOCKER_REGISTRY_URL: /myapp/docker-registry/url
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+
+  pre_build:
+    commands:
+      - echo "Installing Python dependencies..."
+      - pip install -r requirements.txt
+
+  build:
+    commands:
+      - echo "Preparing Docker credentials..."
+      - DOCKER_USER=$(echo $DOCKER_REGISTRY_USERNAME | tr -d '\n')
+      - DOCKER_PASS=$(echo $DOCKER_REGISTRY_PASSWORD | tr -d '\n')
+      - DOCKER_URL=$(echo $DOCKER_REGISTRY_URL | tr -d '\n')
+      - echo "Logging in to Docker Hub..."
+      - echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin "$DOCKER_URL"
+      - echo "Building Docker image..."
+      - docker build -t "$DOCKER_URL/$DOCKER_USER/simple-python-flask-app:latest" .
+      - echo "Pushing Docker image to Docker Hub..."
+      - docker push "$DOCKER_URL/$DOCKER_USER/simple-python-flask-app:latest"
+
+  post_build:
+    commands:
+      - echo "✅ Build completed successfully and image pushed to Docker Hub!"
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: .
