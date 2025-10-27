@@ -14,7 +14,7 @@ phases:
       - echo "Installing system dependencies..."
       - yum update -y
       - yum install -y docker
-      - service docker start   # ✅ Start Docker daemon
+      - nohup dockerd >/dev/null 2>&1 &   # ✅ Start Docker daemon manually
 
   pre_build:
     commands:
