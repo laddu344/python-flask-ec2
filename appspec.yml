@@ -3,8 +3,17 @@ os: linux
 files:
   - source: /
     destination: /home/ec2-user/flaskapp
+
 hooks:
+  ApplicationStop:
+    - location: scripts/stop_docker.sh
+      timeout: 60
+      runas: ec2-user
+  BeforeInstall:
+    - location: scripts/clean_up.sh
+      timeout: 60
+      runas: ec2-user
   AfterInstall:
-    - location: scripts/deploy_docker.sh
+    - location: scripts/start_docker.sh
       timeout: 300
       runas: ec2-user
