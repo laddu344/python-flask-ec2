@@ -14,6 +14,8 @@ phases:
       - echo "Installing system dependencies..."
       - yum update -y
       - yum install -y docker
+      - service docker start   # ✅ Start Docker daemon
+
   pre_build:
     commands:
       - echo "Installing Python dependencies..."
@@ -40,7 +42,9 @@ phases:
       - echo "✅ Docker image successfully pushed to Docker Hub!"
       - echo "Creating deployment artifact for CodeDeploy..."
       - mkdir -p output
-      - cp -r appspec.yml scripts/ output/
+      - cp appspec.yml output/
+      - cp -r scripts/ output/
+      - cp -r * output/
       - echo "✅ Artifact ready for deployment."
 
 artifacts:
